@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Plan History — FitLife{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+  <h2 class="page-title"><i class="fa-solid fa-clock-rotate-left me-2 text-sage"></i>Plan History</h2>
+  <p class="page-subtitle">All your previously generated weekly plans.</p>
+</div>
+
+{% if plans %}
+<div class="row g-3">
+  {% for plan in plans %}
+  <div class="col-md-6 col-lg-4">
+    <div class="section-card history-card h-100">
+      <div class="history-card-top">
+        <span class="goal-emoji">
+          {% if plan.goal == 'muscle_growth' %}💪
+          {% elif plan.goal == 'daily_habits' %}🌟
+          {% elif plan.goal == 'lose_fat' %}🔥
+          {% elif plan.goal == 'flexibility' %}🧘
+          {% elif plan.goal == 'strength_training' %}🏋️
+          {% elif plan.goal == 'core' %}⚡
+          {% elif plan.goal == 'running' %}🏃
+          {% endif %}
+        </span>
+        <div class="history-card-meta">
+          <span class="history-goal">{{ plan.get_goal_display }}</span>
+          <span class="history-date text-muted">{{ plan.created_at|date:"d M Y, H:i" }}</span>
+        </div>
+      </div>
+      <div class="history-chips mt-2">
+        <span class="history-chip"><i class="fa-regular fa-clock me-1"></i>{{ plan.duration_minutes }} min/day</span>
+        <span class="history-chip"><i class="fa-solid fa-fire me-1"></i>Intensity {{ plan.intensity }}/5</span>
+        {% if plan.daily_calories %}<span class="history-chip"><i class="fa-solid fa-utensils me-1"></i>{{ plan.daily_calories }} kcal</span>{% endif %}
+        {% if plan.bmi_at_creation %}<span class="history-chip"><i class="fa-solid fa-weight-scale me-1"></i>BMI {{ plan.bmi_at_creation }}</span>{% endif %}
+      </div>
+      <a href="{% url 'plans:view_plan' plan.pk %}" class="btn btn-sage-outline btn-sm mt-3 w-100">
+        <i class="fa-solid fa-eye me-1"></i>View Plan
+      </a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="mt-4 text-end">
+  <a href="{% url 'plans:setup' %}" class="btn btn-sage">
+    <i class="fa-solid fa-wand-magic-sparkles me-2"></i>Generate New Plan
+  </a>
+</div>
+
+{% else %}
+<div class="empty-state">
+  <i class="fa-solid fa-calendar-xmark fa-3x text-sage-light mb-3"></i>
+  <h5>No plans yet</h5>
+  <p class="text-muted">Generate your first personalised 1-week fitness and nutrition plan.</p>
+  <a href="{% url 'plans:setup' %}" class="btn btn-sage mt-2">
+    <i class="fa-solid fa-wand-magic-sparkles me-2"></i>Generate My First Plan
+  </a>
+</div>
+{% endif %}
+{% endblock %}

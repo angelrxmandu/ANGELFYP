@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — FitLife{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+  <h2 class="page-title">Welcome back, {{ user.first_name }} <span class="wave">👋</span></h2>
+  <p class="page-subtitle">Here's your wellness overview.</p>
+</div>
+
+<div class="row g-4">
+
+  <!-- BMI Card -->
+  <div class="col-md-4">
+    <div class="stat-card h-100">
+      <div class="stat-card-icon bg-sage-light">
+        <i class="fa-solid fa-weight-scale"></i>
+      </div>
+      <div class="stat-card-body">
+        <span class="stat-label">Your BMI</span>
+        {% if profile.bmi %}
+          <span class="stat-value">{{ profile.bmi }}</span>
+          <span class="stat-badge badge-{{ profile.bmi_color }}">{{ profile.bmi_category }}</span>
+          <p class="stat-sub mt-1">
+            Height: {{ profile.height_cm }} cm &nbsp;|&nbsp; Weight: {{ profile.weight_kg }} kg
+          </p>
+        {% else %}
+          <span class="stat-value text-muted">—</span>
+          <a href="{% url 'tracker:edit_profile' %}" class="btn btn-sage-outline btn-sm mt-2">
+            <i class="fa-solid fa-plus me-1"></i>Complete profile
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Plan Card -->
+  <div class="col-md-4">
+    <div class="stat-card h-100">
+      <div class="stat-card-icon bg-beige-light">
+        <i class="fa-solid fa-calendar-week"></i>
+      </div>
+      <div class="stat-card-body">
+        <span class="stat-label">Active Plan</span>
+        {% if latest_plan %}
+          <span class="stat-value" style="font-size:1.1rem;">{{ latest_plan.get_goal_display }}</span>
+          <p class="stat-sub">
+            {{ latest_plan.duration_minutes }} min/day &nbsp;·&nbsp; Intensity {{ latest_plan.intensity }}/5<br>
+            <small class="text-muted">Generated {{ latest_plan.created_at|date:"d M Y" }}</small>
+          </p>
+          <a href="{% url 'plans:view_plan' latest_plan.pk %}" class="btn btn-sage btn-sm mt-2">
+            View Plan <i class="fa-solid fa-arrow-right ms-1"></i>
+          </a>
+        {% else %}
+          <span class="stat-value text-muted">—</span>
+          <p class="stat-sub">No plan yet</p>
+          <a href="{% url 'plans:setup' %}" class="btn btn-sage btn-sm mt-2">
+            <i class="fa-solid fa-wand-magic-sparkles me-1"></i>Generate Plan
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress Card -->
+  <div class="col-md-4">
+    <div class="stat-card h-100">
+      <div class="stat-card-icon bg-sage-light">
+        <i class="fa-solid fa-chart-line"></i>
+      </div>
+      <div class="stat-card-body">
+        <span class="stat-label">Progress Logs</span>
+        {% if recent_logs %}
+          <span class="stat-value">{{ recent_logs|length }}</span>
+          <p class="stat-sub">Recent entries</p>
+          <ul class="log-mini-list">
+            {% for log in recent_logs|slice:":3" %}
+              <li>
+                <span class="log-date">{{ log.date|date:"d M" }}</span>
+                <span class="log-weight">{{ log.weight_kg }} kg</span>
+                <span class="log-bmi">BMI {{ log.bmi }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+          <a href="{% url 'tracker:progress' %}" class="btn btn-sage-outline btn-sm mt-2">View all</a>
+        {% else %}
+          <span class="stat-value text-muted">0</span>
+          <p class="stat-sub">No logs yet</p>
+          <a href="{% url 'tracker:progress' %}" class="btn btn-sage-outline btn-sm mt-2">
+            <i class="fa-solid fa-plus me-1"></i>Log progress
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="section-card mt-4">
+  <h5 class="section-title"><i class="fa-solid fa-bolt me-2 text-sage"></i>Quick Actions</h5>
+  <div class="row g-3 mt-1">
+    <div class="col-6 col-md-3">
+      <a href="{% url 'plans:setup' %}" class="quick-action-btn">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+        <span>New Plan</span>
+      </a>
+    </div>
+    <div class="col-6 col-md-3">
+      <a href="{% url 'tracker:progress' %}" class="quick-action-btn">
+        <i class="fa-solid fa-weight-scale"></i>
+        <span>Log Weight</span>
+      </a>
+    </div>
+    <div class="col-6 col-md-3">
+      <a href="{% url 'tracker:edit_profile' %}" class="quick-action-btn">
+        <i class="fa-solid fa-user-pen"></i>
+        <span>Edit Profile</span>
+      </a>
+    </div>
+    <div class="col-6 col-md-3">
+      <a href="{% url 'plans:history' %}" class="quick-action-btn">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        <span>Plan History</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- BMI Info Strip -->
+{% if profile.bmi %}
+<div class="bmi-strip mt-4">
+  <div class="bmi-strip-inner">
+    <div class="bmi-range {% if profile.bmi < 18.5 %}bmi-active{% endif %}">
+      <span class="bmi-range-label">Underweight</span>
+      <span class="bmi-range-val">&lt; 18.5</span>
+    </div>
+    <div class="bmi-range {% if profile.bmi >= 18.5 and profile.bmi < 25 %}bmi-active{% endif %}">
+      <span class="bmi-range-label">Normal</span>
+      <span class="bmi-range-val">18.5 – 24.9</span>
+    </div>
+    <div class="bmi-range {% if profile.bmi >= 25 and profile.bmi < 30 %}bmi-active{% endif %}">
+      <span class="bmi-range-label">Overweight</span>
+      <span class="bmi-range-val">25 – 29.9</span>
+    </div>
+    <div class="bmi-range {% if profile.bmi >= 30 %}bmi-active{% endif %}">
+      <span class="bmi-range-label">Obese</span>
+      <span class="bmi-range-val">&ge; 30</span>
+    </div>
+  </div>
+  <p class="bmi-strip-note">Your BMI of <strong>{{ profile.bmi }}</strong> falls in the <strong>{{ profile.bmi_category }}</strong> range.</p>
+</div>
+{% endif %}
+{% endblock %}
