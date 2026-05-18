@@ -53,6 +53,15 @@
     <div class="section-card mb-4">
       <h5 class="section-title mb-3"><i class="fa-solid fa-weight-scale me-2 text-sage"></i>Weight Over Time</h5>
       <canvas id="weightChart" height="100"></canvas>
+      {% if profile.target_weight_kg %}
+      <div class="mt-2">
+        <span class="target-note">
+          <i class="fa-solid fa-bullseye me-1"></i>
+          Target: <strong>{{ profile.target_weight_kg }} kg</strong>
+          {% if projection %}&nbsp;·&nbsp; Projected: <strong>{{ projection }}</strong>{% endif %}
+        </span>
+      </div>
+      {% endif %}
     </div>
 
     <!-- BMI Chart -->
@@ -116,22 +125,41 @@
     },
   };
 
+  const weightDatasets = [{
+    label: 'Weight',
+    data: chartData.weights,
+    borderColor: '#E8A4B8',
+    backgroundColor: 'rgba(232,164,184,0.12)',
+    borderWidth: 2.5,
+    pointBackgroundColor: '#E8A4B8',
+    pointRadius: 4,
+    tension: 0.35,
+    fill: true,
+  }];
+
+  if (chartData.target_weight) {
+    weightDatasets.push({
+      label: 'Target',
+      data: chartData.labels.map(() => chartData.target_weight),
+      borderColor: '#C47A92',
+      borderWidth: 1.5,
+      borderDash: [6, 4],
+      pointRadius: 0,
+      fill: false,
+    });
+  }
+
   new Chart(document.getElementById('weightChart'), {
     type: 'line',
-    data: {
-      labels: chartData.labels,
-      datasets: [{
-        data: chartData.weights,
-        borderColor: '#87A878',
-        backgroundColor: 'rgba(135,168,120,0.12)',
-        borderWidth: 2.5,
-        pointBackgroundColor: '#87A878',
-        pointRadius: 4,
-        tension: 0.35,
-        fill: true,
-      }],
+    data: { labels: chartData.labels, datasets: weightDatasets },
+    options: {
+      ...commonOptions,
+      plugins: {
+        ...commonOptions.plugins,
+        legend: { display: !!chartData.target_weight, labels: { color: '#7A7A6E', boxWidth: 24 } },
+      },
+      scales: { ...commonOptions.scales, y: { ...commonOptions.scales.y, title: { display: true, text: 'kg', color: '#7A7A6E' } } },
     },
-    options: { ...commonOptions, scales: { ...commonOptions.scales, y: { ...commonOptions.scales.y, title: { display: true, text: 'kg', color: '#7A7A6E' } } } },
   });
 
   new Chart(document.getElementById('bmiChart'), {

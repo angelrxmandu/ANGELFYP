@@ -46,6 +46,7 @@ class UserProfile(models.Model):
     weight_kg = models.FloatField(null=True, blank=True, help_text='Weight in kilograms')
     preferred_goal = models.JSONField(default=list, blank=True)
     preferred_duration = models.IntegerField(null=True, blank=True, choices=DURATION_CHOICES)
+    target_weight_kg = models.FloatField(null=True, blank=True, help_text='Goal weight in kg')
 
     @property
     def bmi(self):

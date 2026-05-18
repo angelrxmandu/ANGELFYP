@@ -2,9 +2,16 @@
 {% block title %}Dashboard — ZenFlow{% endblock %}
 
 {% block content %}
-<div class="page-header mb-4">
-  <h2 class="page-title">Welcome back, {{ user.first_name }} <span class="wave">👋</span></h2>
-  <p class="page-subtitle">Here's your wellness overview.</p>
+<div class="page-header mb-4 d-flex align-items-start justify-content-between flex-wrap gap-2">
+  <div>
+    <h2 class="page-title">Welcome back, {{ user.first_name }} <span class="wave">👋</span></h2>
+    <p class="page-subtitle">Here's your wellness overview.</p>
+  </div>
+  {% if streak > 0 %}
+  <span class="streak-badge">
+    <i class="fa-solid fa-fire"></i> {{ streak }}-day streak
+  </span>
+  {% endif %}
 </div>
 
 <div class="row g-4">
@@ -47,6 +54,15 @@
             {{ latest_plan.duration_minutes }} min/day &nbsp;·&nbsp; Intensity {{ latest_plan.intensity }}/5<br>
             <small class="text-muted">Generated {{ latest_plan.created_at|date:"d M Y" }}</small>
           </p>
+          <div class="completion-bar-wrap mt-2">
+            <div class="d-flex justify-content-between mb-1">
+              <small class="text-muted">Week completion</small>
+              <small class="completion-pct">{{ completion_pct }}%</small>
+            </div>
+            <div class="completion-bar-track">
+              <div class="completion-bar-fill" style="width:{{ completion_pct }}%"></div>
+            </div>
+          </div>
           <a href="{% url 'plans:view_plan' latest_plan.pk %}" class="btn btn-sage btn-sm mt-2">
             View Plan <i class="fa-solid fa-arrow-right ms-1"></i>
           </a>

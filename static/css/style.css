@@ -588,3 +588,122 @@ body {
   .stat-value   { font-size: 1.6rem; }
   .auth-card    { padding: 1.75rem 1.25rem; }
 }
+
+/* ============================================================
+   DARK MODE
+   ============================================================ */
+[data-theme="dark"] {
+  --bg:           #1C1B22;
+  --bg-warm:      #232230;
+  --bg-beige:     #2A2938;
+  --white-warm:   #272535;
+  --blush:        #D4809A;
+  --blush-dark:   #B5607A;
+  --blush-light:  #A05070;
+  --blush-xlight: #352030;
+  --dusty:        #B07080;
+  --sage:         #7A9A6A;
+  --sage-dark:    #5A7A4A;
+  --sage-light:   #405A38;
+  --sage-xlight:  #253020;
+  --beige:        #3A3848;
+  --beige-dark:   #4A4858;
+  --gold:         #B09050;
+  --text:         #EDE8E0;
+  --text-muted:   #9A948A;
+  --border:       #3A3848;
+  --shadow-sm:    0 1px 4px rgba(0,0,0,.3);
+  --shadow:       0 3px 14px rgba(0,0,0,.4);
+  --shadow-md:    0 6px 24px rgba(0,0,0,.5);
+}
+
+/* Dark mode toggle button */
+.dark-toggle {
+  background: none;
+  border: 1.5px solid var(--border);
+  border-radius: 99px;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: .95rem;
+  transition: background .18s, color .18s, border-color .18s;
+}
+.dark-toggle:hover {
+  background: var(--blush-xlight);
+  color: var(--blush);
+  border-color: var(--blush-light);
+}
+
+/* ── Completion / Adherence ── */
+.completion-bar-wrap { margin-bottom: .75rem; }
+.completion-bar-track {
+  height: 8px; border-radius: 99px;
+  background: var(--beige); overflow: hidden;
+}
+.completion-bar-fill {
+  height: 100%; border-radius: 99px;
+  background: var(--blush);
+  transition: width .4s ease;
+}
+.completion-pct { font-size: .82rem; font-weight: 700; color: var(--blush-dark); }
+
+.check-btn {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--bg-warm);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all .18s; flex-shrink: 0;
+  color: transparent; font-size: .75rem;
+}
+.check-btn.checked {
+  background: var(--blush);
+  border-color: var(--blush-dark);
+  color: #fff;
+}
+.check-btn:hover { border-color: var(--blush); }
+
+.swap-btn {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--bg-warm);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all .18s; flex-shrink: 0;
+  color: var(--text-muted); font-size: .72rem;
+}
+.swap-btn:hover  { border-color: var(--sage); color: var(--sage-dark); background: var(--sage-xlight); }
+.swap-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ── Explainability panel ── */
+.explain-panel {
+  background: var(--bg-warm);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.25rem;
+  font-size: .85rem;
+}
+.explain-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: .3rem 0;
+  border-bottom: 1px dashed var(--border);
+}
+.explain-row:last-child { border-bottom: none; }
+.explain-label { color: var(--text-muted); }
+.explain-value { font-weight: 700; color: var(--text); }
+
+/* ── Streak badge ── */
+.streak-badge {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: linear-gradient(135deg, var(--blush-xlight), var(--bg-warm));
+  border: 1.5px solid var(--blush-light);
+  border-radius: 99px; padding: .3rem .85rem;
+  font-size: .82rem; font-weight: 700; color: var(--blush-dark);
+}
+
+/* ── Target weight line label ── */
+.target-note {
+  font-size: .82rem; color: var(--blush-dark);
+  background: var(--blush-xlight); border-radius: var(--radius-sm);
+  padding: .4rem .85rem; display: inline-block; margin-top: .5rem;
+  border: 1px solid var(--blush-light);
+}

@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% block title %}Weekly Plan — ZenFlow{% endblock %}
 
 {% block content %}
@@ -13,7 +13,7 @@
         <span class="text-muted">{{ plan.created_at|date:"d M Y" }}</span>
       </p>
     </div>
-    <div class="d-flex gap-2 flex-wrap">
+    <div class="d-flex gap-2 flex-wrap align-items-center">
       {% if plan.bmi_at_creation %}
       <span class="plan-meta-chip">BMI at creation: <strong>{{ plan.bmi_at_creation }}</strong></span>
       {% endif %}
@@ -21,6 +21,17 @@
       <a href="{% url 'plans:setup' %}" class="btn btn-sage btn-sm">
         <i class="fa-solid fa-rotate me-1"></i>New Plan
       </a>
+    </div>
+  </div>
+
+  <!-- Week completion bar -->
+  <div class="completion-bar-wrap mt-3">
+    <div class="d-flex justify-content-between mb-1">
+      <small class="text-muted"><i class="fa-solid fa-check-circle me-1"></i>Week completion</small>
+      <small class="completion-pct" id="globalPct">{{ completion_pct }}%</small>
+    </div>
+    <div class="completion-bar-track">
+      <div class="completion-bar-fill" id="globalBar" style="width:{{ completion_pct }}%"></div>
     </div>
   </div>
 </div>
@@ -72,9 +83,16 @@
               <h5 class="section-title mb-0">
                 <i class="fa-solid fa-dumbbell me-2 text-sage"></i>Workout
               </h5>
-              <span class="duration-chip">
-                <i class="fa-regular fa-clock me-1"></i>{{ day.workout.duration_minutes }} min
-              </span>
+              <div class="d-flex align-items-center gap-2">
+                <span class="duration-chip">
+                  <i class="fa-regular fa-clock me-1"></i>{{ day.workout.duration_minutes }} min
+                </span>
+                <button class="check-btn {% if day.completions.workout %}checked{% endif %}"
+                        data-day="{{ day.name }}" data-key="workout"
+                        title="Mark workout done">
+                  <i class="fa-solid fa-check"></i>
+                </button>
+              </div>
             </div>
             <div class="exercise-list">
               {% for ex in day.workout.exercises %}
@@ -117,9 +135,7 @@
             <h5 class="section-title mb-0">
               <i class="fa-solid fa-utensils me-2 text-sage"></i>Nutrition
             </h5>
-            <span class="calorie-chip">
-              {{ day.nutrition.daily_calories }} kcal
-            </span>
+            <span class="calorie-chip">{{ day.nutrition.daily_calories }} kcal</span>
           </div>
 
           <!-- Macro bar -->
@@ -146,7 +162,7 @@
 
           <!-- Meals -->
           {% for meal_name, meal in day.nutrition.meals.items %}
-          <div class="meal-card">
+          <div class="meal-card" id="meal-{{ day.name }}-{{ meal_name }}">
             <div class="meal-header">
               <span class="meal-name">
                 {% if meal_name == 'Breakfast' %}🌅
@@ -155,7 +171,17 @@
                 {% endif %}
                 {{ meal_name }}
               </span>
-              <span class="meal-kcal">{{ meal.calories }} kcal</span>
+              <div class="d-flex align-items-center gap-2">
+                <span class="meal-kcal">{{ meal.calories }} kcal</span>
+                <button class="check-btn {% if day.completions|dictsortreversed:meal_name %}{% if meal_name in day.completions and day.completions|json_script:'' %}{% endif %}{% endif %} {% if day.completions.Breakfast and meal_name == 'Breakfast' %}checked{% elif day.completions.Lunch and meal_name == 'Lunch' %}checked{% elif day.completions.Dinner and meal_name == 'Dinner' %}checked{% endif %}"
+                        data-day="{{ day.name }}" data-key="{{ meal_name }}"
+                        title="Mark {{ meal_name }} done">
+                  <i class="fa-solid fa-check"></i>
+                </button>
+                <button class="swap-btn" data-plan="{{ plan.pk }}" data-day="{{ day.name }}" data-meal="{{ meal_name }}" title="Swap meal">
+                  <i class="fa-solid fa-shuffle"></i>
+                </button>
+              </div>
             </div>
             <div class="meal-food-name">{{ meal.name }}</div>
             <div class="meal-macros">
@@ -174,6 +200,48 @@
   {% endfor %}
 </div><!-- /tab-content -->
 
+<!-- Explainability panel -->
+{% if plan.explanation %}
+<div class="section-card mt-4">
+  <div class="d-flex align-items-center justify-content-between mb-2" style="cursor:pointer" data-bs-toggle="collapse" data-bs-target="#explainPanel">
+    <h5 class="section-title mb-0">
+      <i class="fa-solid fa-circle-info me-2 text-blush"></i>Why was this plan suggested for you?
+    </h5>
+    <i class="fa-solid fa-chevron-down text-muted"></i>
+  </div>
+  <div class="collapse" id="explainPanel">
+    <div class="explain-panel mt-2">
+      {% with e=plan.explanation %}
+      <div class="explain-row">
+        <span class="explain-label">BMI at generation</span>
+        <span class="explain-value">{{ e.bmi }} — {{ e.bmi_category }}</span>
+      </div>
+      <div class="explain-row">
+        <span class="explain-label">Basal Metabolic Rate (BMR)</span>
+        <span class="explain-value">{{ e.bmr }} kcal</span>
+      </div>
+      <div class="explain-row">
+        <span class="explain-label">Total Daily Energy Expenditure (TDEE)</span>
+        <span class="explain-value">{{ e.tdee }} kcal &nbsp;<small class="text-muted">(× {{ e.activity_multiplier }} at {{ e.intensity_label }})</small></span>
+      </div>
+      <div class="explain-row">
+        <span class="explain-label">Calorie adjustment for goals</span>
+        <span class="explain-value">× {{ e.avg_calorie_factor }} &nbsp;<small class="text-muted">averaged across goals</small></span>
+      </div>
+      <div class="explain-row">
+        <span class="explain-label">Target daily calories</span>
+        <span class="explain-value">{{ plan.daily_calories }} kcal</span>
+      </div>
+      <div class="explain-row">
+        <span class="explain-label">Blended macro split</span>
+        <span class="explain-value">Protein {{ e.protein_pct }}% · Carbs {{ e.carbs_pct }}% · Fat {{ e.fat_pct }}%</span>
+      </div>
+      {% endwith %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
 <div class="mt-4 d-flex gap-2 justify-content-end">
   <a href="{% url 'plans:history' %}" class="btn btn-outline-secondary">
     <i class="fa-solid fa-clock-rotate-left me-1"></i>Plan History
@@ -182,4 +250,62 @@
     <i class="fa-solid fa-rotate me-1"></i>Generate New Plan
   </a>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const PLAN_PK   = {{ plan.pk }};
+const CSRF      = '{{ csrf_token }}';
+
+/* ── Completion toggle ── */
+document.querySelectorAll('.check-btn').forEach(btn => {
+  btn.addEventListener('click', function () {
+    const day = this.dataset.day;
+    const key = this.dataset.key;
+    fetch(`/plans/${PLAN_PK}/toggle-completion/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+      body: JSON.stringify({ day, key }),
+    })
+    .then(r => r.json())
+    .then(data => {
+      this.classList.toggle('checked', data.checked);
+      document.getElementById('globalPct').textContent = data.pct + '%';
+      document.getElementById('globalBar').style.width  = data.pct + '%';
+    });
+  });
+});
+
+/* ── Meal swap ── */
+document.querySelectorAll('.swap-btn').forEach(btn => {
+  btn.addEventListener('click', function () {
+    const day      = this.dataset.day;
+    const mealName = this.dataset.meal;
+    const card     = document.getElementById(`meal-${day}-${mealName}`);
+    this.disabled  = true;
+    this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+    fetch(`/plans/${PLAN_PK}/swap-meal/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+      body: JSON.stringify({ day, meal_name: mealName }),
+    })
+    .then(r => r.json())
+    .then(data => {
+      const m = data.meal;
+      card.querySelector('.meal-food-name').textContent = m.name;
+      card.querySelector('.meal-kcal').textContent      = m.calories + ' kcal';
+      card.querySelector('.protein-tag').textContent    = 'P ' + m.protein_g + 'g';
+      card.querySelector('.carbs-tag').textContent      = 'C ' + m.carbs_g + 'g';
+      card.querySelector('.fat-tag').textContent        = 'F ' + m.fat_g + 'g';
+      this.disabled  = false;
+      this.innerHTML = '<i class="fa-solid fa-shuffle"></i>';
+    })
+    .catch(() => {
+      this.disabled  = false;
+      this.innerHTML = '<i class="fa-solid fa-shuffle"></i>';
+    });
+  });
+});
+</script>
 {% endblock %}

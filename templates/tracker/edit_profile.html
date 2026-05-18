@@ -46,9 +46,14 @@
         {% if form.height_cm.errors %}<div class="form-error">{{ form.height_cm.errors.0 }}</div>{% endif %}
       </div>
       <div class="col-md-4">
-        <label class="form-label fw-semibold">Weight (kg)</label>
+        <label class="form-label fw-semibold">Current Weight (kg)</label>
         {{ form.weight_kg }}
         {% if form.weight_kg.errors %}<div class="form-error">{{ form.weight_kg.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label fw-semibold">Target Weight (kg) <span class="text-muted fw-normal">(optional)</span></label>
+        {{ form.target_weight_kg }}
+        {% if form.target_weight_kg.errors %}<div class="form-error">{{ form.target_weight_kg.errors.0 }}</div>{% endif %}
       </div>
       <div class="col-md-4 d-flex align-items-end">
         <div class="bmi-preview-box w-100" id="bmiPreview" style="display:none;">

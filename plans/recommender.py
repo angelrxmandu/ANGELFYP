@@ -321,8 +321,7 @@ def _pick_meal(df: pd.DataFrame, meal_name: str, target_cal: int) -> dict:
 
 def generate_weekly_plan(profile, goals, duration_minutes: int, intensity: int) -> tuple:
     """
-    Returns (workout_plan, nutrition_plan, daily_calories, macros) as dicts
-    keyed by day name ('Monday' … 'Sunday').
+    Returns (workout_plan, nutrition_plan, daily_calories, macros, explanation).
     goals may be a single string or a list of goal keys.
     """
     goals = _normalise_goals(goals)
@@ -333,6 +332,32 @@ def generate_weekly_plan(profile, goals, duration_minutes: int, intensity: int) 
     gender = profile.gender or 'M'
     weight = profile.weight_kg or 70.0
     height = profile.height_cm or 170.0
+
+    # Compute intermediates for explanation
+    bmr = calculate_bmr(weight, height, age, gender)
+    multiplier = ACTIVITY_MULTIPLIER.get(intensity, 1.55)
+    tdee = bmr * multiplier
+    avg_factor = sum(CALORIE_GOAL_FACTOR.get(g, 1.0) for g in goals) / len(goals)
+    splits = [MACRO_SPLITS.get(g, (0.25, 0.50, 0.25)) for g in goals]
+    p_pct = round(sum(s[0] for s in splits) / len(splits) * 100)
+    c_pct = round(sum(s[1] for s in splits) / len(splits) * 100)
+    f_pct = round(sum(s[2] for s in splits) / len(splits) * 100)
+
+    _intensity_labels = {1: 'Very Light', 2: 'Light', 3: 'Moderate', 4: 'Hard', 5: 'Very Hard'}
+    explanation = {
+        'bmr': round(bmr, 1),
+        'tdee': round(tdee, 1),
+        'activity_multiplier': multiplier,
+        'intensity_label': _intensity_labels.get(intensity, 'Moderate'),
+        'goals': goals,
+        'goal_factors': {g: CALORIE_GOAL_FACTOR.get(g, 1.0) for g in goals},
+        'avg_calorie_factor': round(avg_factor, 3),
+        'protein_pct': p_pct,
+        'carbs_pct': c_pct,
+        'fat_pct': f_pct,
+        'bmi': profile.bmi,
+        'bmi_category': profile.bmi_category,
+    }
 
     daily_calories = calculate_daily_calories(weight, height, age, gender, intensity, goals)
     macros = get_macros(goals, daily_calories)
@@ -370,7 +395,7 @@ def generate_weekly_plan(profile, goals, duration_minutes: int, intensity: int) 
             'macros': macros,
         }
 
-    return workout_plan, nutrition_plan, daily_calories, macros
+    return workout_plan, nutrition_plan, daily_calories, macros, explanation
 
 
 # ---------------------------------------------------------------------------

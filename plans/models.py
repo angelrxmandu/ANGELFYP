@@ -35,6 +35,8 @@ class WeeklyPlan(models.Model):
     daily_calories = models.IntegerField(default=0)
     workout_plan = models.JSONField(default=dict)
     nutrition_plan = models.JSONField(default=dict)
+    completions = models.JSONField(default=dict, blank=True)
+    explanation = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
