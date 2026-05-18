@@ -93,6 +93,10 @@
                     <span class="prescription-pill">
                       <i class="fa-solid fa-repeat me-1"></i>{{ ex.sets }} sets × {{ ex.reps }} reps
                     </span>
+                  {% elif ex.distance_km %}
+                    <span class="prescription-pill">
+                      <i class="fa-solid fa-road me-1"></i>{{ ex.distance_km }} km
+                    </span>
                   {% elif ex.duration_min %}
                     <span class="prescription-pill">
                       <i class="fa-regular fa-clock me-1"></i>{{ ex.duration_min }} min

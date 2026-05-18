@@ -40,6 +40,9 @@ WORKOUT_DAY_INDICES = {
     60: [0, 1, 2, 3, 4, 5],    # Mon–Sat work, Sun rest
 }
 
+# Running distance (km) suggested per intensity level 1–5
+RUNNING_DISTANCE_KM = {1: 1, 2: 2, 3: 4, 4: 6, 5: 8}
+
 # Caloric adjustment multiplier per goal
 CALORIE_GOAL_FACTOR = {
     'muscle_growth':     1.10,
@@ -246,18 +249,36 @@ def _pick_exercises(df: pd.DataFrame, goals, intensity: int, count: int) -> list
     selected = filtered.sample(sample_size, replace=False)
 
     results = []
+
+    # If running is one of the goals, prepend a distance-based run entry
+    if 'running' in goals:
+        km = RUNNING_DISTANCE_KM.get(intensity, 3)
+        run_level = 'Beginner' if intensity <= 2 else ('Intermediate' if intensity == 3 else 'Expert')
+        results.append({
+            'name':         'Outdoor / Treadmill Run',
+            'type':         'Cardio',
+            'body_part':    'Full Body',
+            'equipment':    'None',
+            'level':        run_level,
+            'sets':         None,
+            'reps':         None,
+            'duration_min': None,
+            'distance_km':  km,
+        })
+
     for _, row in selected.iterrows():
         ex_type = str(row.get('Type', 'Strength'))
         is_cardio = ex_type.lower() == 'cardio'
         results.append({
-            'name':       str(row.get('Title', 'Exercise')),
-            'type':       ex_type,
-            'body_part':  str(row.get('BodyPart', 'Full Body')),
-            'equipment':  str(row.get('Equipment', 'Body Only')),
-            'level':      str(row.get('Level', 'Beginner')),
-            'sets':       None if is_cardio else (3 if intensity >= 3 else 2),
-            'reps':       None if is_cardio else (8 if goal == 'strength_training' else 12),
+            'name':         str(row.get('Title', 'Exercise')),
+            'type':         ex_type,
+            'body_part':    str(row.get('BodyPart', 'Full Body')),
+            'equipment':    str(row.get('Equipment', 'Body Only')),
+            'level':        str(row.get('Level', 'Beginner')),
+            'sets':         None if is_cardio else (3 if intensity >= 3 else 2),
+            'reps':         None if is_cardio else (8 if 'strength_training' in goals else 12),
             'duration_min': (10 if count <= 4 else 5) if is_cardio else None,
+            'distance_km':  None,
         })
     return results
 
