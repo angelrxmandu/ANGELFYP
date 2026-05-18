@@ -5,7 +5,8 @@ from .models import UserProfile, ProgressLog
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['gender', 'date_of_birth', 'height_cm', 'weight_kg']
+        fields = ['gender', 'date_of_birth', 'height_cm', 'weight_kg',
+                  'preferred_goal', 'preferred_duration']
         widgets = {
             'date_of_birth': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'gender': forms.Select(attrs={'class': 'form-select'}),
@@ -15,11 +16,15 @@ class UserProfileForm(forms.ModelForm):
             'weight_kg': forms.NumberInput(attrs={
                 'class': 'form-control', 'placeholder': 'e.g. 65', 'step': '0.1', 'min': '20', 'max': '500',
             }),
+            'preferred_goal': forms.RadioSelect(),
+            'preferred_duration': forms.RadioSelect(),
         }
         labels = {
             'height_cm': 'Height (cm)',
             'weight_kg': 'Weight (kg)',
             'date_of_birth': 'Date of Birth',
+            'preferred_goal': 'Preferred Goal',
+            'preferred_duration': 'Workout Duration',
         }
 
 

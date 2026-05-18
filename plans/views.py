@@ -39,7 +39,12 @@ def setup_plan(request):
             messages.success(request, 'Your 1-week plan has been generated!')
             return redirect('plans:view_plan', pk=plan.pk)
     else:
-        form = PlanSetupForm()
+        initial = {}
+        if profile.preferred_goal:
+            initial['goal'] = profile.preferred_goal
+        if profile.preferred_duration:
+            initial['duration_minutes'] = profile.preferred_duration
+        form = PlanSetupForm(initial=initial)
 
     return render(request, 'plans/setup.html', {'form': form, 'profile': profile})
 

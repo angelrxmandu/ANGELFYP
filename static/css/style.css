@@ -1,5 +1,5 @@
-/* ============================================================
-   FitLife — Design System
+﻿/* ============================================================
+   ZenFlow — Design System
    Theme: Soft White · Warm Beige · Sage Green
    ============================================================ */
 
@@ -49,7 +49,7 @@ body {
 /* ============================================================
    NAVBAR
    ============================================================ */
-.fitlife-navbar {
+.ZenFlow-navbar {
   background: var(--white-warm);
   border-bottom: 1px solid var(--border);
   padding: .75rem 0;
@@ -62,15 +62,15 @@ body {
 .brand-icon { color: var(--sage); font-size: 1.3rem; }
 .brand-name  { font-weight: 700; font-size: 1.2rem; color: var(--text); letter-spacing: -.3px; }
 
-.fitlife-navbar .nav-link {
+.ZenFlow-navbar .nav-link {
   color: var(--text-muted);
   font-weight: 500;
   padding: .45rem .8rem;
   border-radius: var(--radius-sm);
   transition: color .18s, background .18s;
 }
-.fitlife-navbar .nav-link:hover,
-.fitlife-navbar .nav-link.active {
+.ZenFlow-navbar .nav-link:hover,
+.ZenFlow-navbar .nav-link.active {
   color: var(--sage-dark);
   background: var(--sage-xlight);
 }
@@ -114,7 +114,7 @@ body {
 .main-content { flex: 1; }
 .auth-page     { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--bg-warm); }
 
-.fitlife-footer {
+.ZenFlow-footer {
   background: var(--white-warm);
   border-top: 1px solid var(--border);
   padding: 1rem 0;
@@ -125,7 +125,7 @@ body {
 /* ============================================================
    ALERTS
    ============================================================ */
-.alert-fitlife {
+.alert-ZenFlow {
   border-radius: var(--radius-sm);
   border: none;
   font-size: .9rem;
@@ -320,6 +320,18 @@ body {
   border-radius: var(--radius-sm); padding: .6rem 1rem;
   font-size: .88rem; color: var(--sage-dark);
 }
+.bmi-preview-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--text-muted); }
+.bmi-preview-value { font-size: 1.4rem; font-weight: 800; color: var(--sage-dark); line-height: 1.1; }
+
+/* ── BMI Reference Strip (profile page) ── */
+.bmi-ref-strip {
+  display: flex; flex-wrap: wrap; gap: .6rem;
+  padding: .75rem 1rem;
+  background: var(--bg-warm); border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+.bmi-ref-item  { display: flex; align-items: center; gap: .4rem; font-size: .78rem; color: var(--text-muted); }
+.bmi-ref-dot   { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
 /* ── BMI Banner (plan setup) ── */
 .bmi-banner {
@@ -361,6 +373,7 @@ body {
 }
 .goal-icon  { font-size: 1.8rem; }
 .goal-label { font-size: .8rem; font-weight: 700; text-align: center; color: var(--text); }
+.goal-desc  { font-size: .72rem; color: var(--text-muted); text-align: center; line-height: 1.3; }
 
 /* ── Duration Grid ── */
 .duration-grid {
@@ -384,6 +397,7 @@ body {
 .duration-icon { font-size: 1.6rem; }
 .duration-val  { font-size: 1.05rem; font-weight: 800; color: var(--text); }
 .duration-sub  { font-size: .75rem; color: var(--text-muted); text-align: center; }
+.rest-note     { font-size: .7rem; color: var(--sage-dark); background: var(--sage-xlight); border-radius: 99px; padding: .15rem .55rem; margin-top: .1rem; }
 
 /* ── Intensity ── */
 .intensity-wrap { padding: .5rem 0; }
@@ -505,9 +519,9 @@ body {
 /* ============================================================
    PROGRESS PAGE
    ============================================================ */
-.table-fitlife { font-size: .88rem; }
-.table-fitlife thead th { color: var(--text-muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; border-bottom: 2px solid var(--border); background: var(--bg-warm); font-weight: 700; }
-.table-fitlife tbody tr:hover { background: var(--sage-xlight); }
+.table-ZenFlow { font-size: .88rem; }
+.table-ZenFlow thead th { color: var(--text-muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; border-bottom: 2px solid var(--border); background: var(--bg-warm); font-weight: 700; }
+.table-ZenFlow tbody tr:hover { background: var(--sage-xlight); }
 .bmi-pill { background: var(--sage-xlight); color: var(--sage-dark); border-radius: 99px; padding: .15rem .55rem; font-size: .78rem; font-weight: 700; }
 
 /* ============================================================

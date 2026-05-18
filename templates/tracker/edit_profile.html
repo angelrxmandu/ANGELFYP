@@ -1,90 +1,207 @@
 {% extends 'base.html' %}
-{% block title %}Edit Profile — FitLife{% endblock %}
+{% block title %}Your Profile — ZenFlow{% endblock %}
 
 {% block content %}
 <div class="page-header mb-4">
   <h2 class="page-title"><i class="fa-solid fa-user-pen me-2 text-sage"></i>Your Profile</h2>
-  <p class="page-subtitle">Update your details so we can personalise your plan accurately.</p>
+  <p class="page-subtitle">Tell us about yourself so we can build the perfect plan for you.</p>
 </div>
 
-<div class="row justify-content-center">
-  <div class="col-lg-6 col-md-8">
-    <div class="section-card">
+<form method="post" novalidate>
+  {% csrf_token %}
 
-      {% if profile.bmi %}
-      <div class="bmi-highlight mb-4">
-        <div class="bmi-highlight-value">{{ profile.bmi }}</div>
-        <div class="bmi-highlight-info">
-          <span class="bmi-highlight-label">Current BMI</span>
-          <span class="badge badge-{{ profile.bmi_color }}">{{ profile.bmi_category }}</span>
+  <!-- ── Step 1 · Personal Info & BMI ───────────────────── -->
+  <div class="section-card mb-4">
+    <h5 class="section-title mb-3">
+      <span class="step-badge">1</span>Personal Info &amp; BMI
+    </h5>
+
+    {% if profile.bmi %}
+    <div class="bmi-highlight mb-4">
+      <div class="bmi-highlight-value">{{ profile.bmi }}</div>
+      <div class="bmi-highlight-info">
+        <span class="bmi-highlight-label">Current BMI</span>
+        <span class="badge badge-{{ profile.bmi_color }}">{{ profile.bmi_category }}</span>
+        {% if profile.age %}<small class="text-muted d-block mt-1">Age: {{ profile.age }} yrs</small>{% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label fw-semibold">Gender</label>
+        {{ form.gender }}
+        {% if form.gender.errors %}<div class="form-error">{{ form.gender.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label fw-semibold">Date of Birth</label>
+        {{ form.date_of_birth }}
+        {% if form.date_of_birth.errors %}<div class="form-error">{{ form.date_of_birth.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="col-md-4"></div>
+
+      <div class="col-md-4">
+        <label class="form-label fw-semibold">Height (cm)</label>
+        {{ form.height_cm }}
+        {% if form.height_cm.errors %}<div class="form-error">{{ form.height_cm.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label fw-semibold">Weight (kg)</label>
+        {{ form.weight_kg }}
+        {% if form.weight_kg.errors %}<div class="form-error">{{ form.weight_kg.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="col-md-4 d-flex align-items-end">
+        <div class="bmi-preview-box w-100" id="bmiPreview" style="display:none;">
+          <div class="d-flex align-items-center gap-2">
+            <i class="fa-solid fa-calculator text-sage"></i>
+            <div>
+              <div class="bmi-preview-label">BMI Preview</div>
+              <div class="bmi-preview-value" id="bmiPreviewVal">—</div>
+            </div>
+            <span class="badge ms-auto" id="bmiPreviewBadge"></span>
+          </div>
         </div>
       </div>
-      {% endif %}
+    </div>
 
-      <form method="post" novalidate>
-        {% csrf_token %}
-
-        <div class="mb-3">
-          <label class="form-label fw-semibold">Gender</label>
-          {{ form.gender }}
-          {% if form.gender.errors %}<div class="form-error">{{ form.gender.errors.0 }}</div>{% endif %}
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label fw-semibold">Date of Birth</label>
-          {{ form.date_of_birth }}
-          {% if form.date_of_birth.errors %}<div class="form-error">{{ form.date_of_birth.errors.0 }}</div>{% endif %}
-          {% if profile.age %}<small class="text-muted">Age: {{ profile.age }} years</small>{% endif %}
-        </div>
-
-        <div class="row g-3 mb-3">
-          <div class="col-6">
-            <label class="form-label fw-semibold">Height (cm)</label>
-            {{ form.height_cm }}
-            {% if form.height_cm.errors %}<div class="form-error">{{ form.height_cm.errors.0 }}</div>{% endif %}
-          </div>
-          <div class="col-6">
-            <label class="form-label fw-semibold">Weight (kg)</label>
-            {{ form.weight_kg }}
-            {% if form.weight_kg.errors %}<div class="form-error">{{ form.weight_kg.errors.0 }}</div>{% endif %}
-          </div>
-        </div>
-
-        <div class="bmi-preview-box" id="bmiPreview" style="display:none;">
-          <i class="fa-solid fa-calculator me-2 text-sage"></i>
-          BMI preview: <strong id="bmiPreviewVal">—</strong>
-        </div>
-
-        <div class="d-flex gap-2 mt-4">
-          <button type="submit" class="btn btn-sage flex-grow-1">
-            <i class="fa-solid fa-floppy-disk me-2"></i>Save Profile
-          </button>
-          <a href="{% url 'tracker:dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
-        </div>
-      </form>
+    <!-- BMI reference strip -->
+    <div class="bmi-ref-strip mt-3">
+      <div class="bmi-ref-item"><span class="bmi-ref-dot" style="background:#3B82F6"></span><span>Underweight &lt;18.5</span></div>
+      <div class="bmi-ref-item"><span class="bmi-ref-dot" style="background:#22C55E"></span><span>Normal 18.5–24.9</span></div>
+      <div class="bmi-ref-item"><span class="bmi-ref-dot" style="background:#F59E0B"></span><span>Overweight 25–29.9</span></div>
+      <div class="bmi-ref-item"><span class="bmi-ref-dot" style="background:#EF4444"></span><span>Obese ≥30</span></div>
     </div>
   </div>
-</div>
+
+  <!-- ── Step 2 · Preferred Goal ────────────────────────── -->
+  <div class="section-card mb-4">
+    <h5 class="section-title mb-1">
+      <span class="step-badge">2</span>Preferred Goal
+    </h5>
+    <p class="text-muted small mb-3">
+      What do you mainly want to achieve? This shapes your exercise selection and calorie target.
+    </p>
+    {% if form.preferred_goal.errors %}
+      <div class="form-error mb-2">{{ form.preferred_goal.errors.0 }}</div>
+    {% endif %}
+
+    <div class="goal-grid">
+      {% for value, label in form.preferred_goal.field.choices %}
+      {% if value %}
+      <label class="goal-card" for="pg_{{ forloop.counter }}">
+        <input type="radio" name="preferred_goal" id="pg_{{ forloop.counter }}" value="{{ value }}"
+               {% if form.preferred_goal.value == value %}checked{% endif %} />
+        <div class="goal-card-inner">
+          <span class="goal-icon">
+            {% if value == 'muscle_growth' %}💪
+            {% elif value == 'daily_habits' %}🌟
+            {% elif value == 'lose_fat' %}🔥
+            {% elif value == 'flexibility' %}🧘
+            {% elif value == 'strength_training' %}🏋️
+            {% elif value == 'core' %}⚡
+            {% elif value == 'running' %}🏃
+            {% endif %}
+          </span>
+          <span class="goal-label">{{ label }}</span>
+          <span class="goal-desc">
+            {% if value == 'muscle_growth' %}Build size &amp; strength
+            {% elif value == 'daily_habits' %}Move more every day
+            {% elif value == 'lose_fat' %}Burn fat, stay lean
+            {% elif value == 'flexibility' %}Mobility &amp; stretching
+            {% elif value == 'strength_training' %}Power &amp; compound lifts
+            {% elif value == 'core' %}Abs &amp; stability
+            {% elif value == 'running' %}Cardio &amp; endurance
+            {% endif %}
+          </span>
+        </div>
+      </label>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ── Step 3 · Workout Duration ─────────────────────── -->
+  <div class="section-card mb-4">
+    <h5 class="section-title mb-1">
+      <span class="step-badge">3</span>Preferred Workout Duration
+    </h5>
+    <p class="text-muted small mb-3">
+      How long can you train each session? Rest days are included automatically in your plan.
+    </p>
+    {% if form.preferred_duration.errors %}
+      <div class="form-error mb-2">{{ form.preferred_duration.errors.0 }}</div>
+    {% endif %}
+
+    <div class="duration-grid">
+      {% for value, label in form.preferred_duration.field.choices %}
+      {% if value %}
+      <label class="duration-card" for="pd_{{ forloop.counter }}">
+        <input type="radio" name="preferred_duration" id="pd_{{ forloop.counter }}" value="{{ value }}"
+               {% if profile.preferred_duration == value %}checked{% endif %} />
+        <div class="duration-card-inner">
+          <span class="duration-icon">
+            {% if value == 15 %}⚡{% elif value == 30 %}🕐{% else %}🏆{% endif %}
+          </span>
+          <span class="duration-val">{{ value }} min</span>
+          <span class="duration-sub">
+            {% if value == 15 %}Quick &amp; efficient
+            {% elif value == 30 %}Balanced routine
+            {% else %}Full commitment
+            {% endif %}
+          </span>
+          <span class="rest-note">
+            {% if value == 60 %}1 rest day / week{% else %}2 rest days / week{% endif %}
+          </span>
+        </div>
+      </label>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="d-flex gap-2 justify-content-end">
+    <a href="{% url 'tracker:dashboard' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+    <button type="submit" class="btn btn-sage btn-lg px-5">
+      <i class="fa-solid fa-floppy-disk me-2"></i>Save Profile
+    </button>
+  </div>
+</form>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
-  const heightInput = document.querySelector('input[name="height_cm"]');
-  const weightInput = document.querySelector('input[name="weight_kg"]');
-  const preview = document.getElementById('bmiPreview');
-  const previewVal = document.getElementById('bmiPreviewVal');
+  const heightInput  = document.querySelector('input[name="height_cm"]');
+  const weightInput  = document.querySelector('input[name="weight_kg"]');
+  const preview      = document.getElementById('bmiPreview');
+  const previewVal   = document.getElementById('bmiPreviewVal');
+  const previewBadge = document.getElementById('bmiPreviewBadge');
+
+  const bmiCategories = [
+    { max: 18.5, label: 'Underweight', cls: 'badge-info' },
+    { max: 25.0, label: 'Normal',      cls: 'badge-success' },
+    { max: 30.0, label: 'Overweight',  cls: 'badge-warning' },
+    { max: 999,  label: 'Obese',       cls: 'badge-danger' },
+  ];
 
   function updateBMI() {
     const h = parseFloat(heightInput.value) / 100;
     const w = parseFloat(weightInput.value);
     if (h > 0 && w > 0) {
-      previewVal.textContent = (w / (h * h)).toFixed(1);
+      const bmi = (w / (h * h)).toFixed(1);
+      previewVal.textContent = bmi;
       preview.style.display = 'block';
+      const cat = bmiCategories.find(c => parseFloat(bmi) < c.max);
+      previewBadge.className = 'badge ms-auto ' + (cat ? cat.cls : '');
+      previewBadge.textContent = cat ? cat.label : '';
     } else {
       preview.style.display = 'none';
     }
   }
-  heightInput.addEventListener('input', updateBMI);
-  weightInput.addEventListener('input', updateBMI);
+
+  if (heightInput && weightInput) {
+    heightInput.addEventListener('input', updateBMI);
+    weightInput.addEventListener('input', updateBMI);
+    updateBMI();
+  }
 </script>
 {% endblock %}

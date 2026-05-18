@@ -3,6 +3,39 @@ from django.contrib.auth.models import User
 from datetime import date
 
 
+GOAL_CHOICES = [
+    ('muscle_growth',     'Muscle Growth'),
+    ('daily_habits',      'Improve Daily Habits'),
+    ('lose_fat',          'Lose Fat'),
+    ('flexibility',       'Flexibility'),
+    ('strength_training', 'Strength Training'),
+    ('core',              'Core'),
+    ('running',           'Running'),
+]
+
+DURATION_CHOICES = [
+    (15, '15 minutes / day'),
+    (30, '30 minutes / day'),
+    (60, '1 hour / day'),
+]
+
+GOAL_META = {
+    'muscle_growth':     {'emoji': '💪', 'desc': 'Build size and strength'},
+    'daily_habits':      {'emoji': '🌟', 'desc': 'Move more every day'},
+    'lose_fat':          {'emoji': '🔥', 'desc': 'Burn fat, stay lean'},
+    'flexibility':       {'emoji': '🧘', 'desc': 'Mobility & stretching'},
+    'strength_training': {'emoji': '🏋️', 'desc': 'Power & compound lifts'},
+    'core':              {'emoji': '⚡', 'desc': 'Abs & stability'},
+    'running':           {'emoji': '🏃', 'desc': 'Cardio & endurance'},
+}
+
+DURATION_META = {
+    15: {'emoji': '⚡', 'sub': 'Quick & efficient'},
+    30: {'emoji': '🕐', 'sub': 'Balanced routine'},
+    60: {'emoji': '🏆', 'sub': 'Full commitment'},
+}
+
+
 class UserProfile(models.Model):
     GENDER_CHOICES = [('M', 'Male'), ('F', 'Female'), ('O', 'Other')]
 
@@ -11,6 +44,8 @@ class UserProfile(models.Model):
     date_of_birth = models.DateField(null=True, blank=True)
     height_cm = models.FloatField(null=True, blank=True, help_text='Height in centimetres')
     weight_kg = models.FloatField(null=True, blank=True, help_text='Weight in kilograms')
+    preferred_goal = models.CharField(max_length=20, choices=GOAL_CHOICES, blank=True)
+    preferred_duration = models.IntegerField(null=True, blank=True, choices=DURATION_CHOICES)
 
     @property
     def bmi(self):
@@ -57,7 +92,8 @@ class UserProfile(models.Model):
 
     @property
     def is_complete(self):
-        return all([self.gender, self.date_of_birth, self.height_cm, self.weight_kg])
+        return all([self.gender, self.date_of_birth, self.height_cm, self.weight_kg,
+                    self.preferred_goal, self.preferred_duration])
 
     def __str__(self):
         return f"{self.user.get_full_name() or self.user.email}'s Profile"
