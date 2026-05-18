@@ -3,9 +3,9 @@ from .models import WeeklyPlan, GOAL_CHOICES, DURATION_CHOICES
 
 
 class PlanSetupForm(forms.Form):
-    goal = forms.ChoiceField(
+    goal = forms.MultipleChoiceField(
         choices=GOAL_CHOICES,
-        widget=forms.RadioSelect(attrs={'class': 'goal-radio'}),
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'goal-checkbox'}),
     )
     duration_minutes = forms.ChoiceField(
         choices=DURATION_CHOICES,

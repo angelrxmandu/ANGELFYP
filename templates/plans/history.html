@@ -13,18 +13,9 @@
   <div class="col-md-6 col-lg-4">
     <div class="section-card history-card h-100">
       <div class="history-card-top">
-        <span class="goal-emoji">
-          {% if plan.goal == 'muscle_growth' %}💪
-          {% elif plan.goal == 'daily_habits' %}🌟
-          {% elif plan.goal == 'lose_fat' %}🔥
-          {% elif plan.goal == 'flexibility' %}🧘
-          {% elif plan.goal == 'strength_training' %}🏋️
-          {% elif plan.goal == 'core' %}⚡
-          {% elif plan.goal == 'running' %}🏃
-          {% endif %}
-        </span>
+        <span class="goal-emoji">{{ plan.goal_emojis }}</span>
         <div class="history-card-meta">
-          <span class="history-goal">{{ plan.get_goal_display }}</span>
+          <span class="history-goal">{{ plan.goal_display }}</span>
           <span class="history-date text-muted">{{ plan.created_at|date:"d M Y, H:i" }}</span>
         </div>
       </div>

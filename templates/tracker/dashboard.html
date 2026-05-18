@@ -42,7 +42,7 @@
       <div class="stat-card-body">
         <span class="stat-label">Active Plan</span>
         {% if latest_plan %}
-          <span class="stat-value" style="font-size:1.1rem;">{{ latest_plan.get_goal_display }}</span>
+          <span class="stat-value" style="font-size:1.1rem;">{{ latest_plan.goal_display }}</span>
           <p class="stat-sub">
             {{ latest_plan.duration_minutes }} min/day &nbsp;·&nbsp; Intensity {{ latest_plan.intensity }}/5<br>
             <small class="text-muted">Generated {{ latest_plan.created_at|date:"d M Y" }}</small>

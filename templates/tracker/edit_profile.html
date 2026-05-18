@@ -79,7 +79,7 @@
       <span class="step-badge">2</span>Preferred Goal
     </h5>
     <p class="text-muted small mb-3">
-      What do you mainly want to achieve? This shapes your exercise selection and calorie target.
+      Choose all goals that apply — these shape your exercise selection and calorie target.
     </p>
     {% if form.preferred_goal.errors %}
       <div class="form-error mb-2">{{ form.preferred_goal.errors.0 }}</div>
@@ -89,8 +89,8 @@
       {% for value, label in form.preferred_goal.field.choices %}
       {% if value %}
       <label class="goal-card" for="pg_{{ forloop.counter }}">
-        <input type="radio" name="preferred_goal" id="pg_{{ forloop.counter }}" value="{{ value }}"
-               {% if form.preferred_goal.value == value %}checked{% endif %} />
+        <input type="checkbox" name="preferred_goal" id="pg_{{ forloop.counter }}" value="{{ value }}"
+               {% if value in form.preferred_goal.value %}checked{% endif %} />
         <div class="goal-card-inner">
           <span class="goal-icon">
             {% if value == 'muscle_growth' %}💪

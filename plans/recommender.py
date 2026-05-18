@@ -86,14 +86,27 @@ def calculate_bmr(weight_kg: float, height_cm: float, age: int, gender: str) -> 
     return 10 * weight_kg + 6.25 * height_cm - 5 * age - 161
 
 
-def calculate_daily_calories(weight_kg, height_cm, age, gender, intensity, goal) -> int:
+def _normalise_goals(goals) -> list:
+    """Accept a single goal string or a list; always return a non-empty list."""
+    if isinstance(goals, str):
+        goals = [goals]
+    return [g for g in goals if g] or ['daily_habits']
+
+
+def calculate_daily_calories(weight_kg, height_cm, age, gender, intensity, goals) -> int:
     bmr = calculate_bmr(weight_kg, height_cm, age, gender)
     tdee = bmr * ACTIVITY_MULTIPLIER.get(intensity, 1.55)
-    return max(1200, int(tdee * CALORIE_GOAL_FACTOR.get(goal, 1.0)))
+    goals = _normalise_goals(goals)
+    avg_factor = sum(CALORIE_GOAL_FACTOR.get(g, 1.0) for g in goals) / len(goals)
+    return max(1200, int(tdee * avg_factor))
 
 
-def get_macros(goal: str, calories: int) -> dict:
-    p, c, f = MACRO_SPLITS.get(goal, (0.25, 0.50, 0.25))
+def get_macros(goals, calories: int) -> dict:
+    goals = _normalise_goals(goals)
+    splits = [MACRO_SPLITS.get(g, (0.25, 0.50, 0.25)) for g in goals]
+    p = sum(s[0] for s in splits) / len(splits)
+    c = sum(s[1] for s in splits) / len(splits)
+    f = sum(s[2] for s in splits) / len(splits)
     return {
         'protein_g': int(calories * p / 4),
         'carbs_g':   int(calories * c / 4),
@@ -193,9 +206,19 @@ def _normalise_foods(df: pd.DataFrame) -> pd.DataFrame:
 # Workout selection
 # ---------------------------------------------------------------------------
 
-def _pick_exercises(df: pd.DataFrame, goal: str, intensity: int, count: int) -> list:
-    types = GOAL_EXERCISE_TYPES.get(goal, ['Strength'])
-    body_parts = GOAL_BODY_PARTS.get(goal, [])
+def _pick_exercises(df: pd.DataFrame, goals, intensity: int, count: int) -> list:
+    goals = _normalise_goals(goals)
+
+    # Union of exercise types across all goals
+    types = list({t for g in goals for t in GOAL_EXERCISE_TYPES.get(g, ['Strength'])})
+
+    # Body-part restriction only if every selected goal restricts (intersection)
+    bp_lists = [GOAL_BODY_PARTS.get(g, []) for g in goals]
+    non_empty_bp = [bp for bp in bp_lists if bp]
+    if non_empty_bp and len(non_empty_bp) == len(goals):
+        body_parts = list(set.intersection(*[set(bp) for bp in non_empty_bp]))
+    else:
+        body_parts = []
 
     if intensity <= 2:
         levels = ['Beginner']
@@ -275,11 +298,13 @@ def _pick_meal(df: pd.DataFrame, meal_name: str, target_cal: int) -> dict:
 # Main plan generator
 # ---------------------------------------------------------------------------
 
-def generate_weekly_plan(profile, goal: str, duration_minutes: int, intensity: int) -> tuple:
+def generate_weekly_plan(profile, goals, duration_minutes: int, intensity: int) -> tuple:
     """
     Returns (workout_plan, nutrition_plan, daily_calories, macros) as dicts
     keyed by day name ('Monday' … 'Sunday').
+    goals may be a single string or a list of goal keys.
     """
+    goals = _normalise_goals(goals)
     exercises_df = load_exercises()
     foods_df = load_foods()
 
@@ -288,8 +313,8 @@ def generate_weekly_plan(profile, goal: str, duration_minutes: int, intensity: i
     weight = profile.weight_kg or 70.0
     height = profile.height_cm or 170.0
 
-    daily_calories = calculate_daily_calories(weight, height, age, gender, intensity, goal)
-    macros = get_macros(goal, daily_calories)
+    daily_calories = calculate_daily_calories(weight, height, age, gender, intensity, goals)
+    macros = get_macros(goals, daily_calories)
     ex_count = DURATION_EXERCISE_COUNT.get(duration_minutes, 7)
     workout_indices = WORKOUT_DAY_INDICES.get(duration_minutes, [0, 1, 2, 3, 4])
 
@@ -309,7 +334,7 @@ def generate_weekly_plan(profile, goal: str, duration_minutes: int, intensity: i
         else:
             workout_plan[day] = {
                 'is_rest_day': False,
-                'exercises': _pick_exercises(exercises_df, goal, intensity, ex_count),
+                'exercises': _pick_exercises(exercises_df, goals, intensity, ex_count),
                 'duration_minutes': duration_minutes,
             }
 

@@ -19,9 +19,16 @@ DURATION_CHOICES = [
 ]
 
 
+GOAL_LABELS = dict(GOAL_CHOICES)
+GOAL_EMOJI = {
+    'muscle_growth': '💪', 'daily_habits': '🌟', 'lose_fat': '🔥',
+    'flexibility': '🧘', 'strength_training': '🏋️', 'core': '⚡', 'running': '🏃',
+}
+
+
 class WeeklyPlan(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='weekly_plans')
-    goal = models.CharField(max_length=20, choices=GOAL_CHOICES)
+    goal = models.JSONField(default=list)
     duration_minutes = models.IntegerField(choices=DURATION_CHOICES)
     intensity = models.IntegerField()
     bmi_at_creation = models.FloatField(null=True, blank=True)
@@ -34,7 +41,17 @@ class WeeklyPlan(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.user.email} — {self.get_goal_display()} ({self.created_at.date()})"
+        return f"{self.user.email} — {self.goal_display} ({self.created_at.date()})"
+
+    @property
+    def goal_display(self):
+        goals = self.goal if isinstance(self.goal, list) else [self.goal]
+        return ', '.join(GOAL_LABELS.get(g, g) for g in goals)
+
+    @property
+    def goal_emojis(self):
+        goals = self.goal if isinstance(self.goal, list) else [self.goal]
+        return ' '.join(GOAL_EMOJI.get(g, '') for g in goals)
 
     @property
     def intensity_label(self):

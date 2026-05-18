@@ -44,7 +44,7 @@ class UserProfile(models.Model):
     date_of_birth = models.DateField(null=True, blank=True)
     height_cm = models.FloatField(null=True, blank=True, help_text='Height in centimetres')
     weight_kg = models.FloatField(null=True, blank=True, help_text='Weight in kilograms')
-    preferred_goal = models.CharField(max_length=20, choices=GOAL_CHOICES, blank=True)
+    preferred_goal = models.JSONField(default=list, blank=True)
     preferred_duration = models.IntegerField(null=True, blank=True, choices=DURATION_CHOICES)
 
     @property
@@ -94,6 +94,12 @@ class UserProfile(models.Model):
     def is_complete(self):
         return all([self.gender, self.date_of_birth, self.height_cm, self.weight_kg,
                     self.preferred_goal, self.preferred_duration])
+
+    @property
+    def preferred_goal_display(self):
+        labels = dict(GOAL_CHOICES)
+        goals = self.preferred_goal or []
+        return ', '.join(labels.get(g, g) for g in goals)
 
     def __str__(self):
         return f"{self.user.get_full_name() or self.user.email}'s Profile"

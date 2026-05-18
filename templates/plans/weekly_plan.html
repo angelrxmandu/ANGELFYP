@@ -7,7 +7,7 @@
     <div>
       <h2 class="page-title"><i class="fa-solid fa-calendar-week me-2 text-sage"></i>Your 1-Week Plan</h2>
       <p class="page-subtitle">
-        {{ plan.get_goal_display }} &nbsp;·&nbsp;
+        {{ plan.goal_display }} &nbsp;·&nbsp;
         {{ plan.duration_minutes }} min/day &nbsp;·&nbsp;
         Intensity {{ plan.intensity }}/5 ({{ plan.intensity_label }}) &nbsp;·&nbsp;
         <span class="text-muted">{{ plan.created_at|date:"d M Y" }}</span>
