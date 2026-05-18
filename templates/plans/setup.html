@@ -1,0 +1,136 @@
+﻿{% extends 'base.html' %}
+{% block title %}Generate Plan — ZenFlow{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+  <h2 class="page-title"><i class="fa-solid fa-wand-magic-sparkles me-2 text-sage"></i>Build Your Week</h2>
+  <p class="page-subtitle">Customise your 1-week fitness & nutrition plan based on your goals.</p>
+</div>
+
+{% if profile.bmi %}
+<div class="bmi-banner mb-4">
+  <div class="d-flex align-items-center gap-3 flex-wrap">
+    <div class="bmi-banner-val">
+      <span class="label">Your BMI</span>
+      <span class="value">{{ profile.bmi }}</span>
+    </div>
+    <div class="bmi-banner-detail">
+      <span class="badge badge-{{ profile.bmi_color }} fs-6">{{ profile.bmi_category }}</span>
+      <span class="text-muted ms-2">{{ profile.weight_kg }} kg · {{ profile.height_cm }} cm</span>
+    </div>
+    <div class="ms-auto">
+      <a href="{% url 'tracker:edit_profile' %}" class="btn btn-sage-outline btn-sm">
+        <i class="fa-solid fa-pen me-1"></i>Update stats
+      </a>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<form method="post" novalidate>
+  {% csrf_token %}
+
+  <!-- Step 1: Goal -->
+  <div class="section-card mb-4">
+    <h5 class="section-title mb-1"><span class="step-badge">1</span> What's your goal?</h5>
+    <p class="text-muted small mb-3">Choose all goals that apply — your plan will blend them together.</p>
+    <div class="goal-grid">
+      {% for value, label in form.goal.field.choices %}
+      <label class="goal-card" for="goal_{{ forloop.counter }}">
+        <input type="checkbox" name="goal" id="goal_{{ forloop.counter }}" value="{{ value }}"
+               {% if value in form.goal.value %}checked{% endif %} />
+        <div class="goal-card-inner">
+          <span class="goal-icon">
+            {% if value == 'muscle_growth' %}💪
+            {% elif value == 'daily_habits' %}🌟
+            {% elif value == 'lose_fat' %}🔥
+            {% elif value == 'flexibility' %}🧘
+            {% elif value == 'strength_training' %}🏋️
+            {% elif value == 'core' %}⚡
+            {% elif value == 'running' %}🏃
+            {% endif %}
+          </span>
+          <span class="goal-label">{{ label }}</span>
+        </div>
+      </label>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Step 2: Duration -->
+  <div class="section-card mb-4">
+    <h5 class="section-title mb-1"><span class="step-badge">2</span> Daily workout duration</h5>
+    <p class="text-muted small mb-3">Rest days are included automatically in your plan.</p>
+    <div class="duration-grid">
+      {% for value, label in form.duration_minutes.field.choices %}
+      <label class="duration-card" for="dur_{{ forloop.counter }}">
+        <input type="radio" name="duration_minutes" id="dur_{{ forloop.counter }}" value="{{ value }}"
+               {% if forloop.first %}checked{% endif %} />
+        <div class="duration-card-inner">
+          <span class="duration-icon">
+            {% if value == 15 %}⚡{% elif value == 30 %}🕐{% else %}🏆{% endif %}
+          </span>
+          <span class="duration-val">{{ value }} min</span>
+          <span class="duration-sub">
+            {% if value == 15 %}Quick & efficient
+            {% elif value == 30 %}Balanced routine
+            {% else %}Full commitment
+            {% endif %}
+          </span>
+        </div>
+      </label>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Step 3: Intensity -->
+  <div class="section-card mb-4">
+    <h5 class="section-title mb-1"><span class="step-badge">3</span> Intensity level</h5>
+    <p class="text-muted small mb-3">How hard do you want to push yourself?</p>
+    <div class="intensity-wrap">
+      <div class="d-flex justify-content-between mb-1">
+        <small class="text-muted">Very Light</small>
+        <small class="text-muted">Very Hard</small>
+      </div>
+      {{ form.intensity }}
+      <div class="intensity-display mt-2">
+        <span class="intensity-val" id="intensityVal">3</span>
+        <span class="intensity-label" id="intensityLabel">Moderate</span>
+      </div>
+      <div class="intensity-dots mt-2" id="intensityDots">
+        <span class="dot active"></span>
+        <span class="dot active"></span>
+        <span class="dot active"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex gap-3 justify-content-end">
+    <a href="{% url 'tracker:dashboard' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+    <button type="submit" class="btn btn-sage btn-lg px-5">
+      <i class="fa-solid fa-wand-magic-sparkles me-2"></i>Generate My Plan
+    </button>
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  const slider = document.getElementById('intensityRange');
+  const valEl = document.getElementById('intensityVal');
+  const labelEl = document.getElementById('intensityLabel');
+  const dots = document.querySelectorAll('#intensityDots .dot');
+  const labels = ['', 'Very Light', 'Light', 'Moderate', 'Hard', 'Very Hard'];
+
+  function updateIntensity(v) {
+    valEl.textContent = v;
+    labelEl.textContent = labels[v];
+    dots.forEach((d, i) => d.classList.toggle('active', i < v));
+  }
+
+  slider.addEventListener('input', () => updateIntensity(parseInt(slider.value)));
+  updateIntensity(parseInt(slider.value));
+</script>
+{% endblock %}

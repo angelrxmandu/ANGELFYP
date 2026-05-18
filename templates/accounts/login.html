@@ -1,0 +1,42 @@
+﻿{% extends 'base.html' %}
+{% block title %}Log In — ZenFlow{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <span class="brand-icon-lg"><i class="fa-solid fa-leaf"></i></span>
+      <h1 class="auth-title">ZenFlow</h1>
+      <p class="auth-subtitle">your daily reset after the desk clock stops</p>
+    </div>
+
+    <h2 class="auth-heading">Welcome back</h2>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label">Email address</label>
+        {{ form.username }}
+        {% if form.username.errors %}
+          <div class="form-error">{{ form.username.errors.0 }}</div>
+        {% endif %}
+      </div>
+      <div class="mb-4">
+        <label class="form-label">Password</label>
+        {{ form.password }}
+        {% if form.password.errors %}
+          <div class="form-error">{{ form.password.errors.0 }}</div>
+        {% endif %}
+      </div>
+      {% if form.non_field_errors %}
+        <div class="form-error mb-3">{{ form.non_field_errors.0 }}</div>
+      {% endif %}
+      <button type="submit" class="btn btn-sage w-100 btn-lg">Log In</button>
+    </form>
+
+    <p class="auth-switch">
+      Don't have an account? <a href="{% url 'accounts:signup' %}">Sign up</a>
+    </p>
+  </div>
+</div>
+{% endblock %}
